@@ -1,0 +1,66 @@
+version: "3.7"
+
+services:
+  dev:
+    container_name: sgod_sever_web_dev
+    image: sgod_sever_web_dev:1.0.0
+    restart: unless-stopped
+    build:
+      context: .
+      target: development
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./:/usr/src/api
+      - /usr/src/api/node_modules
+    environment:
+      MONGODB: mongodb+srv://lifegoeson:lifegoeson@cluster0.tvipf.mongodb.net/Sichain
+    env_file:
+      - .env
+    ports:
+      - 4007:4007
+    command: npm run dev
+    networks:
+      - sgod_network
+    depends_on:
+      - sgod_mongodb
+  prod:
+    container_name: sgod_server_web_prod
+    image: sgod_server_web_prod:1.0.0
+    restart: unless-stopped
+    build:
+      context: .
+      target: production
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/usr/src/api
+      - /usr/src/api/node_modules
+    environment:
+      MONGODB: mongodb+srv://lifegoeson:lifegoeson@cluster0.tvipf.mongodb.net/Sichain
+    env_file:
+      - .env
+    ports:
+      - 4007:4007
+    command: npm run start:prod
+    networks:
+      - sgod_network
+    depends_on:
+      - sgod_mongodb
+  sgod_mongodb:
+    image: mongo
+    restart: always
+    container_name: sgod_mongodb
+    volumes:
+      - ./mongodb:/data/db
+    ports:
+      - "27017:27017"
+    env_file:
+      - .env
+    networks:
+      sgod_network:
+        aliases:
+          - mongodb+srv://lifegoeson:lifegoeson@cluster0.tvipf.mongodb.net/Sichain
+volumes:
+  mongodb:
+networks:
+  sgod_network:
+    driver: bridge

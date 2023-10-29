@@ -1,0 +1,17 @@
+const homeController = require( '../controllers/web.controller' );
+
+module.exports = require('express').Router()
+  .get('/commons',homeController.readCommon)
+  .get('/slides',homeController.getSlides)
+  .get('/locations',homeController.getLocation)
+  .get('/trademarks',homeController.getTrademark)
+  .get('/teams',homeController.readTeams)
+  .get( '/news',homeController.readNews )
+  .get( '/news/:id',homeController.readNew )
+  .get( '/categories',homeController.readCategories)
+  .get( '/categories/:categories_id/news',homeController.getNewsOfCategories)
+  .get( '/categories/:id',homeController.readCategory)
+  .get( '/courses',homeController.readCourses )
+  .get( '/courses/:id',homeController.readCourse )
+  .post( '/contacts',homeController.sendContact )
+  .get( '/search',homeController.search )

@@ -1,0 +1,3410 @@
+openapi: 3.0.3
+
+info:
+  title: API Sgod Web
+  contact:
+    email: sgod.ai@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 2.0.0
+servers:
+  - url: http://localhost:4095/api/
+tags:
+  - name: ''
+  - name: '**********************************API Auth**************************************'
+  - name: ''
+  - name: Email
+  - name: Phone
+  - name: Auth
+  - name: ''
+  - name: '**********************************API Home**************************************'
+  - name: ''
+  - name: User
+  - name: Conversation
+  - name: Message
+  - name: Students
+  - name: Home
+  - name: Contacts
+  - name: ''
+  - name: '**********************************API Admin**************************************'
+  - name: ''
+  - name: Student
+  - name: Role
+  - name: Manage User
+  - name: Course
+  - name: New
+  - name: Categories
+  - name: Team
+  - name: TeamPosition
+  - name: TeamGroup
+  - name: Contact
+  - name: Commons
+  - name: Location
+  - name: Trademarks
+  - name: TypeEffect
+  - name: Dashboard
+
+paths:
+  /emails:
+    post:
+      tags:
+        - Email
+      summary: send code
+      description: Create email
+      operationId: create
+      requestBody:
+        description: Create email
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Email'
+        required: true
+      responses:
+        '201':
+          description: "We have sent a verification code to your email.\nPlease enter code to below."
+        '400':
+          description: "1. Invalid email address;\n2. Invalid code!"
+  /phones:
+    post:
+      tags:
+        - Phone
+      summary: send code
+      description: Create phones
+      operationId: create
+      requestBody:
+        description: Create phones
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Phone'
+        required: true
+      responses:
+        '201':
+          description: "We have sent a verification code to your email.\nPlease enter code to below."
+        '400':
+          description: "1. Invalid email address;\n2. Invalid code!"
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: login
+      description: Login to Sgod
+      operationId: login
+      requestBody:
+        description: Login to Sgod
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Auth'
+        required: true
+      responses:
+        '200':
+          description: 'Login Successfully.'
+        '400':
+          description: 'Missing credentials!|Invalid email address or phone number!'
+        '401':
+          description: 'Wrong password!'
+        '404':
+          description: 'Email address not registered!|Phone number not registered!|Username not registered!'
+  /auth/logout:
+    delete:
+      tags:
+        - Auth
+      summary: logout
+      description: Logout
+      operationId: logout
+      responses:
+        '200':
+          description: Logout successfully.
+        '401':
+          description: Unauthorized
+      security:
+        - Bearer: string
+  /auth/{username}:
+    patch:
+      tags:
+        - Auth
+      summary: reset password
+      description: Login to Sgod
+      operationId: reset-password
+      parameters:
+        - name: username
+          example: info@Sgod.vn|0796380300
+          in: path
+          description: 'Value of username can also be email/phone'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Login to Sgod
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  example: ''
+                code:
+                  type: string
+                  example: '532894'
+        required: true
+      responses:
+        '200':
+          description: 'Login Successfully.'
+        '400':
+          description: 'Missing credentials!|Invalid email address or phone number!'
+        '401':
+          description: 'Wrong password!'
+        '404':
+          description: 'Email address not registered!|Phone number not registered!|Username not registered!'
+  /auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: refresh token
+      description: Refresh Token
+      operationId: Refresh Token
+      responses:
+        '200':
+          description: Refresh Token successfully.
+        '401':
+          description: Unauthorized
+      security:
+        - Bearer: string
+  /users:
+    post:
+      tags:
+        - User
+      summary: create user
+      description: Create user
+      operationId: create
+      requestBody:
+        description: Create user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '201':
+          description: 'Register successfully.'
+        '400':
+          description: "Password is required!\n1. First name is required;\n2. Last name is required;\n3. Invalid username;\n4.  is not language!"
+        '401':
+          description: "Wrong code!\nYou have 2|1 attempts left."
+        '404':
+          description: "Code not found!\nPlease click to \"Send Code\"."
+        '429':
+          description: "You tried too many!\nPlease try again with a different verification code or change your email."
+        '500':
+          description: "Cannot read properties of undefined (reading 'year')"
+    put:
+      tags:
+        - User
+      summary: update myself
+      description: update user
+      operationId: update
+      requestBody:
+        description: Update user
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Account'
+        required: true
+      responses:
+        '200':
+          description: 'Updated successfully.'
+        '400':
+          description: "1. First name is required;\n2. Last name is required;\n3. Invalid username;\n4.  is not language!"
+        '404':
+          description: 'User not found!|Information not found!'
+      security:
+        - Bearer: string
+    get:
+      tags:
+        - User
+      summary: read myself
+      description: read myself
+      operationId: readMyself
+      responses:
+        '200':
+          description: Read successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: 'User not found!|Information not found!'
+      security:
+        - Bearer: string
+  /users/change-password:
+    patch:
+      tags:
+        - User
+      summary: update password
+      description: Update password
+      requestBody:
+        description: Update password
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  example: Sgod123@
+                new_pass:
+                  type: string
+                  example: Sgod1234@
+        required: true
+      responses:
+        '201':
+          description: "We have sent a verification code to your email.\nPlease enter code to below."
+        '200':
+          description: 'Change password success'
+      security:
+        - Bearer: string
+  /users/course/{id}:
+    post:
+      tags:
+        - User
+      summary: register course
+      description: This can only be done by the logged in Student.
+      parameters:
+        - name: id
+          in: path
+          description: 'Id of Course'
+          required: true
+      responses:
+        '201':
+          description: Register Course successfully.
+        '404':
+          description: Course not found.
+        '500':
+          description: Internal Server Error.
+      security:
+        - Bearer: string
+  /conversations:
+    get:
+      tags:
+        - Conversation
+      summary: read my conversation
+      description: read my conversation
+      operationId: readMyself
+      responses:
+        '200':
+          description: Read successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: 'User not found!|Information not found!'
+      security:
+        - Bearer: string
+    post:
+      tags:
+        - Conversation
+      summary: create my conversation
+      description: Create my conversation - if access token is root, receiverId is required
+      operationId: create
+      requestBody:
+        description: Create conversation
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Conversation'
+        required: true
+      responses:
+        '201':
+          description: 'Create conversation successfully.'
+        '400':
+          description: 'receiverId is required!'
+      security:
+        - Bearer: string
+  /conversations/{conversationId}:
+    put:
+      tags:
+        - Conversation
+      summary: update my conversation
+      description: update my conversation
+      operationId: update
+      requestBody:
+        description: Update conversation
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Account'
+        required: true
+      responses:
+        '200':
+          description: 'Updated successfully.'
+        '400':
+          description: "1. First name is required;\n2. Last name is required;\n3. Invalid username;\n4.  is not language!"
+        '404':
+          description: 'User not found!|Information not found!'
+      security:
+        - Bearer: string
+  /messages/{conversationId}:
+    get:
+      tags:
+        - Message
+      summary: read messages by conversation
+      description: read messages by conversation
+      parameters:
+        - name: conversationId
+          in: path
+          description: 'id of conversation'
+          required: true
+          parameters:
+        - name: page
+          in: query
+          description: number of pages want to get
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: number of returned items
+          schema:
+            type: string
+        - name: skip
+          in: query
+          description: the number of items you want to skip
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: sort by field in message
+          schema:
+            type: string
+            example: -createdAt
+      responses:
+        '200':
+          description: Read messages successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+      security:
+        - Bearer: string
+  /messages/{conversationId}/latest:
+    get:
+      tags:
+        - Message
+      summary: read latest messages by conversation
+      description: read latest messages by conversation
+      parameters:
+        - name: conversationId
+          in: path
+          description: 'id of conversation'
+          required: true
+      responses:
+        '200':
+          description: Read successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          description: 'conversationId not found!|Information not found!'
+      security:
+        - Bearer: string
+  /messages:
+    post:
+      tags:
+        - Message
+      summary: create message
+      description: create message
+      requestBody:
+        description: Update password
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                conversation:
+                  type: string
+                  example: 6452228c9d3511315e03ea6d
+                text:
+                  type: string
+                  example: Hello
+        required: true
+      responses:
+        '200':
+          description: Read successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+      security:
+        - Bearer: string
+  /messages/seen/{conversationId}/{receiverId}:
+    put:
+      tags:
+        - Message
+      summary: view status update for messages
+      description: view status update for messages
+      parameters:
+        - name: conversationId
+          in: path
+          description: 'id of conversation'
+          required: true
+        - name: receiverId
+          in: path
+          description: id of receiver in conversation
+          required: true
+      responses:
+        '200':
+          description: Read successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          description: 'conversationId or receiverId not found!|Information not found!'
+      security:
+        - Bearer: string
+  /messages/unseen/{conversationId}/{receiverId}:
+    get:
+      tags:
+        - Message
+      summary: quantity of messages unseen
+      description: quantity of messages unseen
+      parameters:
+        - name: conversationId
+          in: path
+          description: 'id of conversation'
+          required: true
+        - name: receiverId
+          in: path
+          description: id of receiver in conversation
+          required: true
+      responses:
+        '200':
+          description: Read successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          description: 'conversationId or receiverId not found!|Information not found!'
+      security:
+        - Bearer: string
+  /students:
+    get:
+      tags:
+        - Students
+      summary: read myself
+      description: This can only be done by the logged in Student.
+      responses:
+        '200':
+          description: Get all Sharing success
+        '404':
+          description: Student not found.
+        '500':
+          description: Internal Server error.
+      security:
+        - Bearer: string
+  /slides:
+    get:
+      tags:
+        - Home
+      summary: slides
+      description: Get all slides in HomePage.
+      responses:
+        '200':
+          description: Get all Home success
+        '400':
+          description: Invalid status value
+  /locations:
+    get:
+      tags:
+        - Home
+      summary: locations
+      description: Get all data in HomePage.
+      responses:
+        '200':
+          description: Get all Home success
+        '400':
+          description: Invalid status value
+  /trademarks:
+    get:
+      tags:
+        - Home
+      summary: trademarks
+      description: Get all data in HomePage.
+      responses:
+        '200':
+          description: Get all Home success
+        '400':
+          description: Invalid status value
+  /contacts:
+    post:
+      tags:
+        - Contacts
+      summary: send contact
+      description: Send feedback.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contact'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Contact'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Contact'
+      responses:
+        '200':
+          description: Get all Contact success
+        '400':
+          description: Invalid status value
+  /commons:
+    get:
+      tags:
+        - Home
+      summary: read commons
+      description: read info Homepage.
+      responses:
+        '200':
+          description: Get all Sharing success
+        '400':
+          description: Invalid status value
+  /teams:
+    get:
+      tags:
+        - Home
+      summary: read teams
+      description: read info Homepage.
+      parameters:
+        - name: page
+          in: query
+          description: ID of Share to return
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: ID of Share to return
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: ID of Share to return
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get all Sharing success
+        '400':
+          description: Invalid status value
+  /news:
+    get:
+      tags:
+        - Home
+      summary: read news
+      description: read info Homepage.
+      parameters:
+        - name: page
+          in: query
+          description: ID of Share to return
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: ID of Share to return
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: ID of Share to return
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: ID of Share to return
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get all Sharing success
+        '400':
+          description: Invalid status value
+  /news/{id}:
+    get:
+      tags:
+        - Home
+      summary: read new
+      description: read info Homepage.
+      parameters:
+        - name: id
+          in: path
+          description: ID of Share to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get all Sharing success
+        '400':
+          description: Invalid status value
+  /categories:
+    get:
+      tags:
+        - Home
+      summary: read categories
+      description: read info Homepage.
+      parameters:
+        - name: sort
+          in: query
+          description: ID of Share to return
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get all categories success
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+  /categories/{id}:
+    get:
+      tags:
+        - Home
+      summary: read categories
+      description: Categories.
+      parameters:
+        - name: id
+          in: path
+          description: id of categories to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get all Sharing match this categories
+        '400':
+          description: Invalid status value
+  /categories/{categories_id}/news:
+    get:
+      tags:
+        - Home
+      summary: sort sharing list by category id
+      description: Categories.
+      parameters:
+        - name: categories_id
+          in: path
+          description: ID of news
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get all Sharing match this categories
+        '400':
+          description: Invalid status value
+  /courses:
+    get:
+      tags:
+        - Home
+      summary: trainingPage
+      description: Get all data of TrainingPage.
+      parameters:
+        - name: page
+          in: query
+          description: ID of Share to return
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: ID of Share to return
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: ID of Share to return
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: ID of Share to return
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get all Training success
+        '400':
+          description: Invalid status value
+  /courses/{id}:
+    get:
+      tags:
+        - Home
+      summary: read course
+      description: Returns a single Course
+      parameters:
+        - name: id
+          in: path
+          description: ID of Course to return
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+  /search:
+    get:
+      tags:
+        - Home
+      summary: Search by keyword
+      parameters:
+        - name: key
+          in: query
+          description: key to search
+          required: true
+          schema:
+            type: string
+
+      responses:
+        200:
+          description: Login successfully.
+        401:
+          description: You\'re not authenticated.
+        500:
+          description: Internal Server Error.
+
+  /admin/users:
+    post:
+      tags:
+        - Manage User
+      summary: Create
+      description: Create user
+      operationId: create
+      requestBody:
+        description: Create user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '201':
+          description: 'Register successfully.'
+        '400':
+          description: "Password is required!\n1. First name is required;\n2. Last name is required;\n3. Invalid username;\n4.  is not language!"
+        '401':
+          description: "Wrong code!\nYou have 2|1 attempts left."
+        '404':
+          description: "Code not found!\nPlease click to \"Send Code\"."
+        '429':
+          description: "You tried too many!\nPlease try again with a different verification code or change your email."
+        '500':
+          description: "Cannot read properties of undefined (reading 'year')"
+      security:
+        - Bearer: string
+    get:
+      tags:
+        - Manage User
+      summary: get users
+      description: Get all User
+      operationId: read
+      responses:
+        '200':
+          description: Get All User successfully.
+        '500':
+          description: Internal Server Error.
+      security:
+        - Bearer: string
+  /admin/users/{id}/role:
+    patch:
+      tags:
+        - Manage User
+      summary: update role user
+      description: Update role for User
+      operationId: update
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Update role for User
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roles:
+                  type: array
+                  items:
+                    example: 634e0a8c80b5b3e30998b663
+        required: true
+      responses:
+        200:
+          description: Delete success
+        404:
+          description: User not found
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/users/{id}/block:
+    patch:
+      tags:
+        - Manage User
+      summary: block & unlock user
+      operationId: block
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Block User success
+        404:
+          description: User not found
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/users/{id}:
+    delete:
+      tags:
+        - Manage User
+      summary: delete user
+      description: Delete a User
+      operationId: delete
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Delete success
+        404:
+          description: Student not found
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+
+  /admin/students:
+    get:
+      tags:
+        - Student
+      summary: read students
+      description: Get all Student
+      responses:
+        '200':
+          description: 'Listed successfully.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '500':
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    post:
+      tags:
+        - Student
+      summary: create student
+      description: Create student
+      operationId: create
+      requestBody:
+        description: Create student
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+        required: true
+      responses:
+        '201':
+          description: 'Create successfully.'
+        '400':
+          description: "Password is required!\n1. First name is required;\n2. Last name is required;\n3. Invalid username;\n4.  is not language!"
+        '401':
+          description: "Wrong code!\nYou have 2|1 attempts left."
+        '404':
+          description: "Code not found!\nPlease click to \"Send Code\"."
+        '429':
+          description: "You tried too many!\nPlease try again with a different verification code or change your email."
+        '500':
+          description: "Cannot read properties of undefined (reading 'year')"
+      security:
+        - Bearer: string
+  /admin/students/{id}:
+    get:
+      tags:
+        - Student
+      summary: read student
+      description: Returns a single Student
+      parameters:
+        - name: id
+          in: path
+          description: Id of Student to return
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Listed successfully.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        404:
+          description: Student not found
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    put:
+      tags:
+        - Student
+      summary: Find Student and Update
+      description: Find Student and Update
+      parameters:
+        - name: id
+          in: path
+          description: Id of Student to return
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Account'
+      responses:
+        200:
+          description: 'Listed successfully.'
+          content:
+            $ref: '#/components/schemas/Account'
+        404:
+          description: Student not found
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    delete:
+      tags:
+        - Student
+      summary: Delete a Student
+      description: Delete a Student
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Delete success
+        404:
+          description: Student not found
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/students/{id}/courses:
+    get:
+      tags:
+        - Student
+      summary: read courses of student
+      description: Returns a list Course of Student
+      parameters:
+        - name: id
+          in: path
+          description: Id of Student to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Listed successfully.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      example: 634e0a8c80b5b3e30998b663
+                    nameUser:
+                      type: string
+                      example: Sgod
+                    listCourse:
+                      type: array
+                      items:
+                        type: object
+                        $ref: '#/components/schemas/User'
+        404:
+          description: User not found
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/students/{id}/status/{index}:
+    put:
+      tags:
+        - Student
+      summary: update status course of student
+      description: index is _id of object course
+      parameters:
+        - name: id
+          in: path
+          description: ID of Student to return
+          required: true
+          schema:
+            type: string
+        - name: index
+          in: path
+          description: id of items (courseId)
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/status'
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/students/{id}/course/{index}:
+    delete:
+      tags:
+        - Student
+      summary: delete course of student
+      description: index is courseId
+      parameters:
+        - name: id
+          in: path
+          description: ID of Student to return
+          required: true
+          schema:
+            type: string
+        - name: index
+          in: path
+          description: id of items (courseId)
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/courses:
+    get:
+      tags:
+        - Course
+      summary: get courses
+      description: This can only be done by the logged in user.
+      responses:
+        '200':
+          description: Get all Course success
+        '400':
+          description: Invalid status value
+    post:
+      tags:
+        - Course
+      summary: create course
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Course'
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/courses/{id}:
+    get:
+      tags:
+        - Course
+      summary: Get Info course
+      description: Returns a single Course
+      parameters:
+        - name: id
+          in: path
+          description: ID or Slug of Course to return
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    put:
+      tags:
+        - Course
+      summary: Update Course
+      description: This can only be done by the logged in user.
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Course'
+      responses:
+        default:
+          description: successful operation
+      security:
+        - Bearer: string
+    delete:
+      tags:
+        - Course
+      summary: Deletes a Course
+      description: delete a Share
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/courses/{id}/{children}:
+    post:
+      tags:
+        - Course
+      summary: update info Course
+      parameters:
+        - name: id
+          in: path
+          description: ID of Course to return
+          required: true
+          schema:
+            type: string
+        - name: children
+          in: path
+          description: children is (lession,willlearn,studyRoute)
+          required: true
+          schema:
+            type: string
+            enum:
+              - lession
+              - willlearn
+              - studyRoute
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                $ref: '#/components/schemas/Course'
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/courses/{id}/{children}/{index}:
+    put:
+      tags:
+        - Course
+      summary: update info Course
+      parameters:
+        - name: id
+          in: path
+          description: ID of Course to return
+          required: true
+          schema:
+            type: string
+        - name: children
+          in: path
+          description: children is (lession,willlearn,studyRoute)
+          required: true
+          schema:
+            type: string
+            enum:
+              - lession
+              - willlearn
+              - studyRoute
+        - name: index
+          in: path
+          description: _id of (lession,studyRoute)
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                $ref: '#/components/schemas/Course'
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    delete:
+      tags:
+        - Course
+      summary: delete info Course
+      parameters:
+        - name: id
+          in: path
+          description: ID of Course to return
+          required: true
+          schema:
+            type: string
+        - name: children
+          in: path
+          description: children is (lession,studyRoute)
+          required: true
+          schema:
+            type: string
+        - name: index
+          in: path
+          description: _id of (lession,studyRoute)
+          schema:
+            type: string
+      responses:
+        201:
+          description: Delete item success
+        404:
+          description: Invalid input value
+        422:
+          description: Delete Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/news:
+    get:
+      tags:
+        - New
+      summary: read posts
+      description: Get all New
+      responses:
+        '200':
+          description: 'Listed successfully.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/New'
+        '400':
+          description: Invalid status value
+      security:
+        - Bearer: string
+    post:
+      tags:
+        - New
+      summary: create new post
+      description: Create new Sharing
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/New'
+      responses:
+        201:
+          description: Create item success
+        422:
+          description: Invalid input value
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/news/{id}:
+    get:
+      tags:
+        - New
+      summary: get info post
+      description: Returns a single Share
+      parameters:
+        - name: id
+          in: path
+          description: ID or Slug of Share to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Listed successfully.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/New'
+        404:
+          description: Share not found.
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    put:
+      tags:
+        - New
+      summary: update new
+      description: This can only be done by the logged in user.
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/New'
+      responses:
+        '200':
+          description: Delete success.
+        '404':
+          description: Share not found.
+        '500':
+          description: Internal Server Error.
+      security:
+        - Bearer: string
+    delete:
+      tags:
+        - New
+      summary: delete new
+      description: Delete Shares
+      parameters:
+        - name: id
+          in: path
+          description: ID of User to return
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Delete success.
+        404:
+          description: Share not found.
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/categories:
+    get:
+      tags:
+        - Categories
+      summary: read categories
+      description: read categories.
+      parameters:
+        - name: sort
+          in: query
+          description: ID of Share to return
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get all categories success
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    post:
+      tags:
+        - Categories
+      summary: Create new categories
+      description: This can only be done by the logged in user.
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Categories'
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categories'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Categories'
+      security:
+        - Bearer: string
+  /admin/categories/{id}:
+    get:
+      tags:
+        - Categories
+      summary: read categories
+      description: Returns a single categories
+      parameters:
+        - name: id
+          in: path
+          description: ID of categories to return
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get data success
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    put:
+      tags:
+        - Categories
+      summary: Update categories
+      description: This can only be done by the logged in user.
+      parameters:
+        - name: id
+          in: path
+          description: id that need to be update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Categories'
+      responses:
+        default:
+          description: successful operation
+      security:
+        - Bearer: string
+    delete:
+      tags:
+        - Categories
+      summary: Deletes a Categories
+      description: delete a Categories
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get data success
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/teams:
+    get:
+      tags:
+        - Team
+      summary: read team
+      description: This can only be done by the logged in user.
+      responses:
+        '200':
+          description: Get all Team success
+        '400':
+          description: Invalid status value
+      security:
+        - Bearer: string
+    post:
+      tags:
+        - Team
+      summary: crate team
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Team'
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/teams/{id}:
+    get:
+      tags:
+        - Team
+      summary: read team
+      description: Returns a single typeshare
+      parameters:
+        - name: id
+          in: path
+          description: ID of Team to return
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get data success
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    put:
+      tags:
+        - Team
+      summary: Update Team
+      parameters:
+        - name: id
+          in: path
+          description: id that need to be update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/_Team'
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    delete:
+      tags:
+        - Team
+      summary: Deletes a Team
+      description: delete a Team
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get data success
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/team-groups:
+    get:
+      tags:
+        - TeamGroup
+      summary: read team-groups
+      description: This can only be done by the logged in user.
+      responses:
+        '200':
+          description: Get all TeamGroup success
+        '400':
+          description: Invalid status value
+      security:
+        - Bearer: string
+    post:
+      tags:
+        - TeamGroup
+      summary: create team-groups
+      description: This can only be done by the logged in user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamGroup'
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/team-groups/{id}:
+    get:
+      tags:
+        - TeamGroup
+      summary: read team-groups
+      description: Returns a single typeshare
+      parameters:
+        - name: id
+          in: path
+          description: ID of TeamGroup to return
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get data success
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    put:
+      tags:
+        - TeamGroup
+      summary: Update TeamGroup
+      parameters:
+        - name: id
+          in: path
+          description: id that need to be update
+          required: true
+          schema:
+            type: string
+      # operationId: uploadFile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamGroup'
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    delete:
+      tags:
+        - TeamGroup
+      summary: Deletes a TeamGroup
+      description: delete a TeamGroup
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get data success
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/team-groups/{id}/{teamid}:
+    post:
+      tags:
+        - TeamGroup
+      summary: add team into team-groups
+      description: This can only be done by the logged in user.
+      parameters:
+        - name: id
+          in: path
+          description: id of teamgroup
+          required: true
+          schema:
+            type: string
+        - name: teamid
+          in: path
+          description: id of team
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    delete:
+      tags:
+        - TeamGroup
+      summary: Deletes a TeamGroup
+      description: delete a TeamGroup
+      parameters:
+        - name: id
+          in: path
+          description: id of teamgroup
+          required: true
+          schema:
+            type: string
+        - name: teamid
+          in: path
+          description: id of team
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get data success
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/team-positions:
+    get:
+      tags:
+        - TeamPosition
+      summary: read team-positions
+      description: This can only be done by the logged in user.
+      responses:
+        '200':
+          description: Get all TeamPosition success
+        '400':
+          description: Invalid status value
+      security:
+        - Bearer: string
+    post:
+      tags:
+        - TeamPosition
+      summary: create team-positions
+      description: This can only be done by the logged in user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamPosition'
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/team-positions/{id}:
+    get:
+      tags:
+        - TeamPosition
+      summary: read team-positions
+      description: Returns a single typeshare
+      parameters:
+        - name: id
+          in: path
+          description: ID of TeamPosition to return
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get data success
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    put:
+      tags:
+        - TeamPosition
+      summary: Update TeamPosition
+      parameters:
+        - name: id
+          in: path
+          description: id that need to be update
+          required: true
+          schema:
+            type: string
+      # operationId: uploadFile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamPosition'
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    delete:
+      tags:
+        - TeamPosition
+      summary: Deletes a TeamPosition
+      description: delete a TeamPosition
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get data success
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/contacts:
+    get:
+      tags:
+        - Contact
+      summary: read contact
+      description: This can only be done by the logged in user.
+      responses:
+        '200':
+          description: Get all Contact success
+        '400':
+          description: Invalid status value
+      security:
+        - Bearer: string
+  /admin/contacts/{id}:
+    put:
+      tags:
+        - Contact
+      summary: update contact
+      parameters:
+        - name: id
+          in: path
+          description: id that need to be update
+          required: true
+          schema:
+            type: string
+      # operationId: uploadFile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contact'
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    delete:
+      tags:
+        - Contact
+      summary: Deletes a Contact
+      description: delete a Contact
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get data success
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/commons:
+    get:
+      tags:
+        - Commons
+      summary: Get all data of ('training','product','mission','vision','introduce') collection
+      description: This can only be done by the logged in user.
+      parameters:
+        - name: destination
+          in: query
+          description: destination is ('training','product','mission','vision','introduce') to return
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    post:
+      tags:
+        - Commons
+      summary: Create a new common
+      description: This can on be done by the logged in user
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  enum:
+                    - mission
+                    - vision
+                    - training
+                    - produce
+                    - introduce
+                  default: mission
+                description:
+                  type: string
+                  example: <p>Sgod là công ty nghiên cứu và cung cấp dịch vụ/giải pháp công nghệ ứng dụng BlockChain (chuỗi khối) và AI (trí tuệ nhân tạo) vào quản lý nhằm tăng cường khả năng bảo mật Sgod  là công ty nghiên cứu và cung cấp dịch vụ/giải pháp công nghệ ứng dụng BlockChain (chuỗi khối) và AI (trí tuệ nhân tạo) vào quản lý nhằm tăng cường khả năng bảo mật Sgod là công ty nghiên cứu và cung cấp dịch vụ/giải pháp công nghệ ứng dụng BlockChain (chuỗi khối) và AI (trí tuệ nhân tạo) vào quản lý nhằm tăng cường khả năng bảo mật.</p>
+                image:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: Get data success
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/commons/{id}:
+    put:
+      tags:
+        - Commons
+      description: This can on be done by the logged in user
+      parameters:
+        - name: id
+          in: path
+          description: id that need to be update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: mission
+                description:
+                  type: string
+                  example: <p>Sgod là công ty nghiên cứu và cung cấp dịch vụ/giải pháp công nghệ ứng dụng BlockChain (chuỗi khối) và AI (trí tuệ nhân tạo) vào quản lý nhằm tăng cường khả năng bảo mật Sgod  là công ty nghiên cứu và cung cấp dịch vụ/giải pháp công nghệ ứng dụng BlockChain (chuỗi khối) và AI (trí tuệ nhân tạo) vào quản lý nhằm tăng cường khả năng bảo mật Sgod là công ty nghiên cứu và cung cấp dịch vụ/giải pháp công nghệ ứng dụng BlockChain (chuỗi khối) và AI (trí tuệ nhân tạo) vào quản lý nhằm tăng cường khả năng bảo mật.</p>
+                image:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: Get data success
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/commons/{title}:
+    delete:
+      tags:
+        - Commons
+      summary: Delete item in common based on title
+      description: This can only be done by the logged in user.
+      parameters:
+        - name: title
+          in: path
+          description: title is ('training','product','mission','vision','introduce')
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Update item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/locations:
+    post:
+      tags:
+        - Location
+      summary: update info in Location
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/locations/{id}:
+    put:
+      tags:
+        - Location
+      summary: update info of Loaction by id
+      parameters:
+        - name: id
+          in: path
+          description: id of Location ('address', 'email', 'phonenumber')
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    delete:
+      tags:
+        - Location
+      summary: Delete item ('address', 'email', 'phone') by id in Location collection
+      description: This can only be done by the logged in user.
+      parameters:
+        - name: id
+          in: path
+          description: id of location ('address', 'email', 'phone')
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/trademarks:
+    get:
+      tags:
+        - Trademarks
+      summary: trademarks
+      description: Get all trademark.
+      responses:
+        '200':
+          description: Get all Trademark success
+        '400':
+          description: Invalid status value
+      security:
+        - Bearer: string
+  /admin/trademarks/logo:
+    patch:
+      tags:
+        - Trademarks
+      summary: udpate logo trademark
+      description: This can only be done by the logged in user.
+      parameters:
+        - name: type
+          in: query
+          description: type is (favicon', 'logo-icon', 'logo-word', 'logo') to return
+          required: true
+          schema:
+            type: string
+            enum:
+              - favicon
+              - logo-icon
+              - logo-word
+              - logo
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        201:
+          description: Update item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/trademarks/license/{id}:
+    patch:
+      tags:
+        - Trademarks
+      summary: update license
+      description: This can only be done by the logged in user.
+      parameters:
+        - name: id
+          in: path
+          description: id of license
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  example: L I E N C E S G O D  2023
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        201:
+          description: Update item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    delete:
+      tags:
+        - Trademarks
+      summary: delete license
+      description: This can only be done by the logged in user.
+      parameters:
+        - name: id
+          in: path
+          description: id of license to return
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Update item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/trademarks/license:
+    post:
+      tags:
+        - Trademarks
+      summary: create license
+      description: This can only be done by the logged in user.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  example: L I E N C E S G O D  2023
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        201:
+          description: Update item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/slides:
+    get:
+      tags:
+        - Slide
+      summary: get all slides
+      responses:
+        200:
+          description: Get all slides success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    post:
+      tags:
+        - Slide
+      summary: create slide
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Slide'
+      responses:
+        201:
+          description: Create slide success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/slides/{id}:
+    get:
+      tags:
+        - Slide
+      summary: get single slide
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get single slide success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    put:
+      tags:
+        - Slide
+      summary: update slide by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Slide'
+      responses:
+        201:
+          description: Update slide success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    delete:
+      tags:
+        - Slide
+      summary: delete slide by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: delete slide success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/slides-show:
+    get:
+      tags:
+        - Slideshow
+      summary: get all slides show
+      responses:
+        201:
+          description: Get all slides show success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    post:
+      tags:
+        - Slideshow
+      summary: create new slide show
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Slideshow'
+      responses:
+        201:
+          description: Create new slide show success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/slides-show/{id}:
+    get:
+      tags:
+        - Slideshow
+      summary: get single slide show
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Get slide show success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    put:
+      tags:
+        - Slideshow
+      summary: update slides show by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Slideshow'
+      responses:
+        201:
+          description: Update slide show success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    delete:
+      tags:
+        - Slideshow
+      summary: delete slides show by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Delete slide show success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+      security:
+        - Bearer: string
+
+  /admin/types-effect:
+    get:
+      tags:
+        - TypeEffect
+      summary: get types-effect
+      description: This can only be done by the logged in user.
+      responses:
+        '200':
+          description: Get all TypeEffect success
+        '400':
+          description: Invalid status value
+    post:
+      tags:
+        - TypeEffect
+      summary: create types-effect
+      description: This can only be done by the logged in user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TypeEffect'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/TypeEffect'
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+  /admin/types-effect/{id}:
+    put:
+      tags:
+        - TypeEffect
+      summary: update types-effect
+      parameters:
+        - name: id
+          in: path
+          description: id that need to be update
+          required: true
+          schema:
+            type: string
+      # operationId: uploadFile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TypeEffect'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/TypeEffect'
+      responses:
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+
+    delete:
+      tags:
+        - TypeEffect
+      summary: Deletes a TypeEffect
+      description: delete a TypeEffect
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get data success
+        201:
+          description: Create item success
+        404:
+          description: Invalid input value
+        422:
+          description: Create Error
+        500:
+          description: Internal Server Error
+
+  /admin/roles:
+    get:
+      tags:
+        - Role
+      summary: read roles
+      responses:
+        200:
+          description: Roles
+        401:
+          description: Unauthorize.
+        500:
+          description: Internal Server Error.
+      security:
+        - Bearer: string
+    post:
+      tags:
+        - Role
+      summary: create role
+      description: Role
+      requestBody:
+        description: Field collection is required to match above of collection in app
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+      responses:
+        '201':
+          description: Create new Role success
+        '400':
+          description: Invalid status value
+        '500':
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/roles/{id}:
+    delete:
+      tags:
+        - Role
+      summary: delete role
+      description: Check Role
+      parameters:
+        - name: id
+          in: path
+          description: Id of role to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Delete Role success
+        '404':
+          description: Invalid status value
+        '500':
+          description: Internal Server Error
+      security:
+        - Bearer: string
+    put:
+      tags:
+        - Role
+      summary: Update Role
+      description: Role
+      parameters:
+        - name: id
+          in: path
+          description: Id of role to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+      responses:
+        '201':
+          description: Create new Role success
+        '400':
+          description: Invalid status value
+        '500':
+          description: Internal Server Error
+      security:
+        - Bearer: string
+  /admin/permissions:
+    get:
+      tags:
+        - Role
+      summary: read permissions
+      responses:
+        200:
+          description: Permission
+        401:
+          description: Unauthorize.
+        500:
+          description: Internal Server Error.
+      security:
+        - Bearer: string
+  /admin/histories:
+    get:
+      tags:
+        - Dashboard
+      summary: read histories
+      responses:
+        200:
+          description: History
+        401:
+          description: Unauthorize.
+        500:
+          description: Internal Server Error.
+      security:
+        - Bearer: string
+  /admin/visits:
+    get:
+      tags:
+        - Dashboard
+      summary: read visits
+      responses:
+        200:
+          description: Visit
+        401:
+          description: Unauthorize.
+        500:
+          description: Internal Server Error.
+      security:
+        - Bearer: string
+  /admin/dashboard/getTotal:
+    get:
+      tags:
+        - Dashboard
+      summary: Get Total Info (Visit, Student, Course, New)
+      responses:
+        201:
+          description: Get total info success.
+        500:
+          description: Internal Server Error.
+      security:
+        - Bearer: string
+components:
+  schemas:
+    Categories:
+      type: object
+      properties:
+        name:
+          type: string
+          default: IOT
+        parent:
+          type: array
+          default: ['633f85e83a5cac6e4463c804']
+    TeamGroup:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Blockchain
+    Contact:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Confirm
+        email:
+          type: status
+          example: 'infof.sgod@gmail.com'
+        phone:
+          type: string
+          example: '0374198888'
+        content:
+          type: string
+          example: Sgod
+    TeamPosition:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Blockchain
+    Auth:
+      type: object
+      properties:
+        username:
+          type: string
+          example: infor@gmail.com
+        password:
+          type: string
+          example: Sgod123@
+        device:
+          type: string
+          example: Iphone
+        hardware:
+          type: string
+          example: Linux
+        software:
+          type: string
+          example: Google Chrome
+    Location:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Support
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: name 1
+              value:
+                type: string
+                example: abc@gmail.com
+
+    New:
+      type: object
+      required:
+        - title
+        - summary
+        - content
+        - author
+        - mode
+        - tags
+        - categories
+      properties:
+        title:
+          type: string
+          example: Sgod
+        summary:
+          type: string
+          example: Sgod & Blockchain
+        content:
+          type: string
+          example: Sgod CV & Blockchain
+        author:
+          type: string
+          example: Sgod
+        mode:
+          enum:
+            - pending
+            - public
+            - private
+            - hidden
+        tags:
+          type: array
+          items:
+            type: string
+            example: Sgod
+        categories:
+          type: array
+          items:
+            type: string
+            example: 633f9d90cc7db2ab77ba503d
+        image:
+          type: string
+          format: binary
+        time_public:
+          type: string
+          example: 2023-04-03T07:37:01.292+00:00
+
+    TypeSlide:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Blockchain
+        titles:
+          description: titles of Slide
+          type: array
+        descriptions:
+          description: descriptions of Slide
+          type: array
+        upload:
+          description: images of Slide
+          type: array
+          items:
+            type: string
+            format: binary
+        coordinates:
+          description: coordinates of Slide
+          type: array
+          items:
+            type: object
+            properties:
+              Oxy:
+                type: string
+                example: '14.5-15.5'
+              link:
+                type: string
+                example: 'http://localhost:4007/api/Sgod'
+    TypeEffect:
+      type: object
+      properties:
+        typeeffect:
+          type: string
+          example: Blockchain
+    User:
+      type: object
+      properties:
+        full_name:
+          type: object
+          properties:
+            first:
+              type: string
+              example: Sgod
+            last:
+              type: string
+              example: 5904
+        username:
+          type: string
+          example: infor@gmail.com
+        password:
+          type: string
+          example: Sgod123@
+        birthday:
+          type: object
+          properties:
+            day:
+              type: integer
+              example: 4
+            month:
+              type: integer
+              example: 6
+            year:
+              type: integer
+              example: 2001
+        sex:
+          type: string
+          enum:
+            - Male
+            - Female
+            - Other
+          example: Male
+        code:
+          type: string
+          example: '123456'
+        address:
+          type: string
+          example: '11 thai thuan'
+    Conversation:
+      type: object
+      properties:
+        receiverId:
+          type: string
+          example: '6445df8ed556759a703838be'
+    Message:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '645de9410dc8eb3f75d363f6'
+        conversation:
+          type: string
+          example: '645de9410dc8eb3f75d363f3'
+        sender:
+          type: object
+          properties:
+            full_name:
+              type: object
+              properties:
+                first:
+                  type: string
+                  example: 'Văn Thương'
+                last:
+                  type: string
+                  example: 'Đào'
+            _id:
+              type: string
+              example: '6445df8ed556759a703838be'
+            avatar:
+              type: string
+              example: '/images/1683086201475-807427353-avt-cv.jpg'
+        text:
+          type: string
+          example: 'Hello'
+        image:
+          type: array
+          example: []
+        seen:
+          type: boolean
+          example: false
+
+    Student:
+      type: object
+      properties:
+        full_name:
+          type: object
+          properties:
+            first:
+              type: string
+              example: Sgod
+            last:
+              type: string
+              example: 5904
+        username:
+          type: string
+          example: infor@gmail.com
+        password:
+          type: string
+          example: Sgod123@
+        birthday:
+          type: object
+          properties:
+            day:
+              type: integer
+              example: 4
+            month:
+              type: integer
+              example: 6
+            year:
+              type: integer
+              example: 2001
+        sex:
+          type: string
+          enum:
+            - Male
+            - Female
+            - Other
+          example: Male
+        address:
+          type: string
+          example: '11 thai thuan'
+    Team:
+      type: object
+      properties:
+        avatar:
+          type: string
+          format: binary
+        full_name:
+          type: object
+          properties:
+            first:
+              type: string
+              example: Sgod
+            last:
+              type: string
+              example: 5904
+        email:
+          type: string
+          example: infor@gmail.com
+        phone:
+          type: string
+          example: '0343242992'
+        birthday:
+          type: object
+          properties:
+            day:
+              type: integer
+              example: 4
+            month:
+              type: integer
+              example: 6
+            year:
+              type: integer
+              example: 2001
+        sex:
+          type: string
+          enum:
+            - Male
+            - Female
+            - Other
+          example: Male
+        academicLevel:
+          type: string
+          example: 'Thac Si'
+        experience:
+          type: string
+          example: 'Sgod'
+        position:
+          type: string
+          example: 6438f2938946235f75365baa
+        groupId:
+          type: string
+          example: 6438f2938946235f75365baa
+    _Team:
+      type: object
+      properties:
+        avatar:
+          type: string
+          format: binary
+        full_name:
+          type: object
+          properties:
+            first:
+              type: string
+              example: Sgod
+            last:
+              type: string
+              example: 5904
+        email:
+          type: string
+          example: infor@gmail.com
+        phone:
+          type: string
+          example: '0343242992'
+        birthday:
+          type: object
+          properties:
+            day:
+              type: integer
+              example: 4
+            month:
+              type: integer
+              example: 6
+            year:
+              type: integer
+              example: 2001
+        sex:
+          type: string
+          enum:
+            - Male
+            - Female
+            - Other
+          example: Male
+        academicLevel:
+          type: string
+          example: 'Thac Si'
+        experience:
+          type: string
+          example: 'Sgod'
+
+    Role:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: AdminWeb
+        permissions:
+          type: array
+          items:
+            type: object
+            example: idReadUser
+    Account:
+      type: object
+      required:
+        - full_name
+        - username
+        - sex
+        - address
+      properties:
+        avatar:
+          type: string
+          format: binary
+        full_name:
+          type: object
+          properties:
+            first:
+              type: string
+              example: Sai
+            last:
+              type: string
+              example: Odessa
+        username:
+          type: string
+          example: saigonodessa
+        birthday:
+          type: object
+          properties:
+            day:
+              type: integer
+              example: 29
+            month:
+              type: integer
+              example: 9
+            year:
+              type: integer
+              example: 1997
+        sex:
+          type: string
+          enum:
+            - Male
+            - Female
+            - Other
+          default: Male
+        address:
+          type: string
+          example: 2 Street No. 2 Tan Truong Residential Area, Phu Thuan, District 7, Ho Chi Minh City, Vietnam
+    Email:
+      type: object
+      properties:
+        addr:
+          type: string
+          example: infor@gmail.com
+    Phone:
+      type: object
+      properties:
+        numb:
+          type: string
+          example: '+84374193381'
+    Trademark:
+      type: object
+      properties:
+        copyright:
+          type: string
+          example: CopyRight Sgod 2022
+        images:
+          description: request quantity 1 when updating (favicon, logo-icon, logo-word, logo)
+          type: array
+          items:
+            type: string
+            format: binary
+        _id:
+          type: string
+          description: Id only added in case of editing that license
+        text:
+          type: string
+          example: L I E N C E S I C H A I N 2022
+    Course:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Blockchain
+        description:
+          type: string
+          example: Blockchain & AI
+        level:
+          type: string
+          example: Basic
+        price:
+          type: string
+          example: 3000000
+        timeOpening:
+          type: string
+          example: 2022-01-01
+          format: date-time
+          pattern: 'DD-MM-YYYY'
+        timeExpire:
+          type: string
+          example: 2022-12-12
+          format: date-time
+          pattern: 'DD-MM-YYYY'
+        maxQuantity:
+          type: string
+          example: 30
+        reducePrice:
+          type: string
+          example: 2
+        teacher:
+          type: string
+          example: Sgod
+        image:
+          type: string
+          format: binary
+    Slide:
+      type: object
+      required:
+        - title
+        - description
+        - navigate
+        - coordinates
+        - width
+        - height
+      properties:
+        imageSlide:
+          type: string
+          format: binary
+        title:
+          type: string
+          example: sgod slide
+        description:
+          type: string
+          example: sgod slide description
+        navigate:
+          type: string
+          example: image/slide/sgod-slide.png
+        coordinates:
+          type: array
+          items:
+            type: object
+            properties:
+              oxy:
+                type: string
+                example: 'xyz'
+              link:
+                type: string
+                example: '/images/link'
+        width:
+          type: number
+          example: 600
+        height:
+          type: number
+          example: 800
+    Slideshow:
+      type: object
+      required:
+        - name
+        - slide
+        - effect
+      properties:
+        name:
+          type: string
+          example: sgod show 1
+        slides:
+          type: array
+          items:
+            type: string
+          example: ['6465998e3e6ab4572157fb63', '6465998e3e6ab4572887ad66']
+        effect:
+          type: string
+          enum:
+            - 3D Effect
+            - Cube
+            - Autoplay
+            - Default
+  securitySchemes:
+    Bearer:
+      type: apiKey
+      name: Authorization
+      in: header
